@@ -14,6 +14,13 @@ var app = express();
 // Basic Configuration 
 var port = process.env.PORT || 3000;
 
+// Define schema.
+const shortySchema = new mongoose.Schema({
+  original: { type: String, required: true },
+  short: { type: String }
+});
+const Shorty = mongoose.model("Shorty", shortySchema);
+
 /** this project needs a db !! **/ 
 mongoose.connect(
   process.env.DB_URI,
