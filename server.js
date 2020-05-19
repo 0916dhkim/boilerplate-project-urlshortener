@@ -47,6 +47,10 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+app.post("/api/shorturl/new", function (req, res) {
+  res.send("OK");
+});
+
 
 app.listen(port, function () {
   console.log('Node.js listening ...');
