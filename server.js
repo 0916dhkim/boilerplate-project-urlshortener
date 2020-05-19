@@ -21,6 +21,19 @@ const shortySchema = new mongoose.Schema({
 });
 const Shorty = mongoose.model("Shorty", shortySchema);
 
+// Random alphanumeric string generator.
+function generateRandomAlphanumericChar() {
+  const chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  return chars[Math.floor(Math.random() * chars.length)];
+}
+function generateShortUrl(len) {
+  let res = "";
+  for (let i = 0; i < len; i++) {
+    res += generateRandomAlphanumericChar();
+  }
+  return res;
+}
+
 /** this project needs a db !! **/ 
 mongoose.connect(
   process.env.DB_URI,
