@@ -115,6 +115,21 @@ app.post("/api/shorturl/new", async function (req, res) {
   }
 });
 
+app.get("/api/shorturl/:shorturl", async function (req, res) {
+  try {
+    await Shorty.findOne({ short: req.params.shorturl }).then(shorty => {
+      if (!shorty) {
+        throw new Error("Short URL not found.");
+      }
+      res.redirect(shorty.original);
+    });
+  } catch (e) {
+    res.send({
+      error: e.message
+    });
+  }
+});
+
 
 app.listen(port, function () {
   console.log('Node.js listening ...');
