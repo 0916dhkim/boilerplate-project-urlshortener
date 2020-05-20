@@ -6,8 +6,8 @@ require("dotenv").config();
 var express = require('express');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
-
 var cors = require('cors');
+const dns = require("dns");
 
 var app = express();
 
@@ -60,6 +60,17 @@ app.get('/', function(req, res){
 app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
+
+async function lookupDns(host) {
+  return new Promise((resolve, reject) => {
+    dns.lookup(host, (err, address, family) => {
+      if (err) {
+        throw err;
+      }
+      resolve(address);
+    });
+  });
+}
 
 app.post("/api/shorturl/new", function (req, res) {
   res.send("OK");
