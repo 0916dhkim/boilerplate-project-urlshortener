@@ -87,17 +87,26 @@ app.post("/api/shorturl/new", async function (req, res) {
     }
     await lookupDns(parsedUrl.host); // Verify DNS lookup.
 
-    // Put shorturl in database.
-    const shorturl = generateShortUrl(SHORT_URL_LENGTH);
-    const shorty = new Shorty({
-      original: urlString,
-      short: shorturl
-    });
-    await shorty.save();
+    // Check if original URL exists in database.
+    await Shorty.findOne({ original: urlString }).then(async (shorty) => {
+      if (!shorty) {
+        // No matching URL.
+        // Put shorturl in database.
+        const shorturl = generateShortUrl(SHORT_URL_LENGTH);
+        shorty = new Shorty({
+          original: urlString,
+          short: shorturl
+        });
+        await shorty.save();
 
-    res.send({
-      original_url: urlString,
-      short_url: shorturl
+        return shorturl;
+      }
+      return shorty.short;
+    }).then(shorturl => {
+      res.send({
+        original_url: urlString,
+        short_url: shorturl
+      });
     });
   } catch (e) {
     res.send({
