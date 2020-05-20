@@ -8,6 +8,7 @@ var mongo = require('mongodb');
 var mongoose = require('mongoose');
 var cors = require('cors');
 const dns = require("dns");
+const url = require("url");
 
 var app = express();
 
@@ -65,15 +66,30 @@ async function lookupDns(host) {
   return new Promise((resolve, reject) => {
     dns.lookup(host, (err, address, family) => {
       if (err) {
-        throw err;
+        reject(err);
       }
       resolve(address);
     });
   });
 }
 
-app.post("/api/shorturl/new", function (req, res) {
-  res.send("OK");
+app.post("/api/shorturl/new", async function (req, res) {
+  try {
+    const urlString = req.body.url;
+    if (!urlString) {
+      throw new Error("Request does not have original url.");
+    }
+    const parsedUrl = url.parse(urlString);
+    if (!parsedUrl.host) {
+      throw new Error("Url is not well-formed.");
+    }
+    await lookupDns(parsedUrl.host); // Verify DNS lookup.
+    res.send("OK");
+  } catch (e) {
+    res.send({
+      error: e.message
+    });
+  }
 });
 
 
