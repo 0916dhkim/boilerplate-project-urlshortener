@@ -14,6 +14,7 @@ var app = express();
 
 // Basic Configuration 
 var port = process.env.PORT || 3000;
+const SHORT_URL_LENGTH = 6;
 
 // Define schema.
 const shortySchema = new mongoose.Schema({
@@ -42,7 +43,7 @@ mongoose.connect(
     useNewUrlParser: true,
     useUnifiedTopology: true
   }
-);
+).then(() => console.log("Connected to DB."));
 
 app.use(cors());
 
@@ -75,6 +76,7 @@ async function lookupDns(host) {
 
 app.post("/api/shorturl/new", async function (req, res) {
   try {
+    // Verify request.
     const urlString = req.body.url;
     if (!urlString) {
       throw new Error("Request does not have original url.");
@@ -84,7 +86,19 @@ app.post("/api/shorturl/new", async function (req, res) {
       throw new Error("Url is not well-formed.");
     }
     await lookupDns(parsedUrl.host); // Verify DNS lookup.
-    res.send("OK");
+
+    // Put shorturl in database.
+    const shorturl = generateShortUrl(SHORT_URL_LENGTH);
+    const shorty = new Shorty({
+      original: urlString,
+      short: shorturl
+    });
+    await shorty.save();
+
+    res.send({
+      original_url: urlString,
+      short_url: shorturl
+    });
   } catch (e) {
     res.send({
       error: e.message
